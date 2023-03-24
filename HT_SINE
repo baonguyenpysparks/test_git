@@ -1,0 +1,26 @@
+import numpy as np
+import pandas as pd
+from scipy.signal import hilbert
+
+def mesa_sine_wave(close_prices):
+    # Calculate the Hilbert Transform of the close prices
+    analytic_signal = hilbert(close_prices)
+    
+    # Compute the instantaneous phase angle
+    phase_angle = np.unwrap(np.angle(analytic_signal))
+    
+    # Calculate the dominant cycle period
+    dc_period = np.rint(10 * (np.pi / np.diff(phase_angle))).mean()
+    
+    # Compute the MESA Sine Wave and Lead Sine Wave
+    sine_wave = np.sin(2 * np.pi * np.arange(len(close_prices)) / dc_period)
+    lead_sine_wave = np.sin(2 * np.pi * np.arange(len(close_prices)) / dc_period + np.pi / 4)
+    
+    return sine_wave, lead_sine_wave
+
+# Example usage:
+close_prices = pd.Series([100, 101, 102, 103, 104, 105, 106, 107, 108, 109])
+sine_wave, lead_sine_wave = mesa_sine_wave(close_prices)
+
+print("Sine Wave:", sine_wave)
+print("Lead Sine Wave:", lead_sine_wave)
